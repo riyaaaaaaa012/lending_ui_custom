@@ -1,0 +1,90 @@
+/* Number Cards Styling - Brand Colors */
+
+/* Number card containers - Blue gradient background */
+.number-card-container,
+.number-card,
+.widget.number-card {
+    background: linear-gradient(135deg, #003893 0%, #0052cc 100%) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 6px rgba(0, 56, 147, 0.15) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect for number cards */
+.number-card-container:hover,
+.number-card:hover,
+.widget.number-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 56, 147, 0.25) !important;
+}
+
+/* Card labels - White text with Space Grotesk */
+.number-card-container .card-label,
+.number-card .card-label,
+.number-card-label,
+.widget.number-card .card-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Card numbers - Large white text */
+.number-card-container .number,
+.number-card .number,
+.number-card-number,
+.widget.number-card .number {
+    color: white !important;
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    line-height: 1.2;
+}
+
+/* Secondary info in cards */
+.number-card-container .card-sub-label,
+.number-card .card-sub-label {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 11px !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+/* Alternative styling - Red accent cards (if needed) */
+.number-card-container.accent,
+.number-card.accent {
+    background: linear-gradient(135deg, #dc143c 0%, #b8102f 100%) !important;
+}
+
+/* Card icon styling (if cards have icons) */
+.number-card-container .card-icon,
+.number-card .card-icon {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Loading state for cards */
+.number-card-container.loading,
+.number-card.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .number-card-container .number,
+    .number-card .number {
+        font-size: 24px !important;
+    }
+    
+    .number-card-container,
+    .number-card {
+        padding: 15px !important;
+    }
+}

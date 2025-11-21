@@ -1,0 +1,103 @@
+/* Login Page Logo Customization */
+
+/* Hide the Frappe logo image on login page */
+.page-card-head img.app-logo,
+img.app-logo[src*="frappe"],
+img[src*="frappe-framework-logo"],
+.page-card-head .app-logo {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Add custom logo after hiding the default one */
+.page-card-head {
+    position: relative;
+    min-height: 120px;
+}
+
+.page-card-head::after {
+    content: '';
+    display: block;
+    width: 200px;
+    height: 80px;
+    margin: 20px auto;
+    background-image: url('/assets/lending_ui_custom/images/custom_logo.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Style the "Login to Frappe" text */
+.page-card-head h4 {
+    color: #003893 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+/* Style login page with brand colors */
+.page-card {
+    border-top: 3px solid #003893;
+    box-shadow: 0 4px 12px rgba(0, 56, 147, 0.1) !important;
+    border-radius: 8px;
+}
+
+/* Login button styling */
+.btn-primary,
+button[type="submit"] {
+    background-color: #003893 !important;
+    border-color: #003893 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+button[type="submit"]:hover {
+    background-color: #002a6b !important;
+    border-color: #002a6b !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 56, 147, 0.2);
+}
+
+/* Input fields on login */
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    font-family: 'Space Grotesk', sans-serif !important;
+    border: 1px solid #e0e0e0;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    border-color: #003893 !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 56, 147, 0.15) !important;
+}
+
+/* Labels on login page */
+label {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Links on login page */
+.page-card a,
+.login-content a {
+    color: #003893 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.page-card a:hover,
+.login-content a:hover {
+    color: #002a6b !important;
+    text-decoration: underline;
+}
+
+/* "or" text styling */
+.page-card .or-line {
+    color: #666;
+    font-family: 'Space Grotesk', sans-serif !important;
+}

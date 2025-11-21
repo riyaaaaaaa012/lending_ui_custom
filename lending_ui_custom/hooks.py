@@ -25,12 +25,22 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/lending_ui_custom/css/lending_ui_custom.css"
-# app_include_js = "/assets/lending_ui_custom/js/lending_ui_custom.js"
+app_include_css = [
+    "/assets/lending_ui_custom/css/custom_fonts.css",
+    "/assets/lending_ui_custom/css/custom_theme.css",
+    "/assets/lending_ui_custom/css/custom_card.css",
+    "/assets/lending_ui_custom/css/custom_login.css"
+    #"/assets/lending_ui_custom/css/custom_dashboard.css"
+]
+app_include_js = ["/assets/lending_ui_custom/js/custom_dashboard.js",
+                "/assets/lending_ui_custom/js/custom_login.js",
+                "/assets/lending_ui_custom/js/reorder_dashboard.js"
+]
 
 # include js, css files in header of web template
-# web_include_css = "/assets/lending_ui_custom/css/lending_ui_custom.css"
-# web_include_js = "/assets/lending_ui_custom/js/lending_ui_custom.js"
+web_include_css = "/assets/lending_ui_custom/css/custom_login.css"
+web_include_js = "/assets/lending_ui_custom/js/custom_login.js"
+
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "lending_ui_custom/public/scss/website"
