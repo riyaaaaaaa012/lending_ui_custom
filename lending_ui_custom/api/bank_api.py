@@ -1,53 +1,32 @@
-
 import frappe
 from frappe import _
 
 @frappe.whitelist()
-def get_pending_loans():
+def get_pending_loan_applications():
     """
-    API endpoint for banks to get their pending loans for approval.
-    Returns list of loans assigned to the bank that need review.
+    API endpoint for banks to get pending loan applications for approval.
+    Returns list of applications in "Pending_Bank_Review" state.
+    
+    Usage:
+    GET /api/method/your_app.api.bank_api.get_pending_loan_applications
     """
     
-    # Get current user
     user = frappe.session.user
     
-    # Option 1: If user has a specific role, get their assigned Loan Partner
-    # For now, we'll let the user pass the loan_partner as a parameter
-    # Or we can map users to loan partners
-    
-    # Get loan_partner from User defaults or custom field
-    # For testing, let's get all loan partners the user has access to
-    
-    # Simple approach: Get user's allowed Loan Partners based on User Permission
-    allowed_partners = frappe.get_all(
-        "User Permission",
-        filters={
-            "user": user,
-            "allow": "Loan Partner"
-        },
-        fields=["for_value"]
-    )
-    
-    # If no specific permissions, user can see all (for Admin)
-    if not allowed_partners:
-        # Get all pending loans (Admin view)
-        loans = frappe.get_all(
-            "Loan",
+    try:
+        applications = frappe.get_all(
+            "Loan Application",
             filters={
                 "custom_bank_approval_status": "Pending Bank Review",
-                "docstatus": 0  # Draft loans only
+                "docstatus": 1
             },
             fields=[
                 "name",
                 "applicant",
-                "applicant_name",
+                "loan_product",
                 "loan_amount",
                 "rate_of_interest",
-                "repayment_method",
                 "posting_date",
-                "status",
-                "loan_partner",
                 "custom_bank_approval_status"
             ],
             order_by="creation desc"
@@ -56,177 +35,121 @@ def get_pending_loans():
         return {
             "success": True,
             "user": user,
-            "loan_partner": "All (Admin access)",
-            "total_loans": len(loans),
-            "loans": loans
+            "total_applications": len(applications),
+            "applications": applications
         }
     
-    # Get loans for specific partners
-    partner_names = [p.for_value for p in allowed_partners]
-    
-    loans = frappe.get_all(
-        "Loan",
-        filters={
-            "loan_partner": ["in", partner_names],
-            "custom_bank_approval_status": "Pending Bank Review",
-            "docstatus": 0  # Draft loans only
-        },
-        fields=[
-            "name",
-            "applicant",
-            "applicant_name",
-            "loan_amount",
-            "rate_of_interest",
-            "repayment_method",
-            "posting_date",
-            "status",
-            "loan_partner",
-            "custom_bank_approval_status"
-        ],
-        order_by="creation desc"
-    )
-    
-    return {
-        "success": True,
-        "user": user,
-        "loan_partners": partner_names,
-        "total_loans": len(loans),
-        "loans": loans
-    }
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Get Pending Applications")
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 
 
 @frappe.whitelist()
-def approve_loan():
+def approve_loan_application():
     """
-    API endpoint for banks to approve or reject loans.
-    Updates the loan status and triggers next workflow steps.
-    """
+    API endpoint for banks to approve or reject a loan application.
+    Changes the application custom_bank_approval_status from "Pending_Bank_Review" to "Bank_Approved" or "Bank_Rejected"
     
-    # Get request data
-    data = frappe.local.form_dict
-    loan_id = data.get("loan_id")
-    action = data.get("action")  # "approve" or "reject"
-    comments = data.get("comments", "")
+    Parameters:
+    - application_id: ID of the Loan Application to approve/reject
+    - action: "approve" or "reject"
+    - comments: Optional comments from the bank
     
-    # Validate inputs
-    if not loan_id:
-        frappe.throw(_("loan_id is required"))
+    Usage:
+    POST /api/method/your_app.api.bank_api.approve_loan_application
     
-    if action not in ["approve", "reject"]:
-        frappe.throw(_("action must be 'approve' or 'reject'"))
-    
-    # Get the loan document
-    loan = frappe.get_doc("Loan", loan_id)
-    
-    # Security check: Verify user has access to this loan's partner
-    user = frappe.session.user
-    allowed_partners = frappe.get_all(
-        "User Permission",
-        filters={
-            "user": user,
-            "allow": "Loan Partner"
-        },
-        fields=["for_value"]
-    )
-    
-    # Admin can access all, others need permission
-    if allowed_partners:
-        partner_names = [p.for_value for p in allowed_partners]
-        if loan.loan_partner not in partner_names:
-            frappe.throw(_("You don't have permission to access this loan"))
-    
-    # Update loan based on action
-    if action == "approve":
-        loan.custom_bank_approval_status = "Approved by Bank"
-        loan.add_comment("Comment", f"Approved by {user}: {comments}")
-        
-        # Optionally auto-submit the loan
-        # loan.submit()
-        
-        message = "Loan approved successfully"
-    else:  # reject
-        loan.custom_bank_approval_status = "Rejected by Bank"
-        loan.add_comment("Comment", f"Rejected by {user}: {comments}")
-        message = "Loan rejected"
-    
-    loan.save(ignore_permissions=True)
-    
-    return {
-        "success": True,
-        "message": message,
-        "loan_id": loan_id,
-        "new_status": loan.custom_bank_approval_status,
-        "approved_by": user,
-        "timestamp": frappe.utils.now()
+    Body (JSON):
+    {
+        "application_id": "LOAN-APP-2025-00001",
+        "action": "approve",
+        "comments": "All checks passed"
     }
-
-
-
-@frappe.whitelist()
-def confirm_disbursement():
-    """
-    API endpoint for banks to confirm loan disbursement.
-    Called after bank has transferred money to customer.
     """
     
-    # Get request data
-    data = frappe.local.form_dict
-    disbursement_id = data.get("disbursement_id")
-    bank_reference = data.get("bank_reference")  # Bank's transaction ID
-    disbursed_amount = data.get("disbursed_amount")
-    comments = data.get("comments", "")
+    try:
+        # Get request data
+        data = frappe.local.form_dict
+        application_id = data.get("application_id")
+        action = data.get("action")  # "approve" or "reject"
+        comments = data.get("comments", "")
+        
+        # Validate inputs
+        if not application_id:
+            frappe.throw(_("application_id is required"))
+        
+        if action not in ["approve", "reject"]:
+            frappe.throw(_("action must be 'approve' or 'reject'"))
+        
+        # Get the loan application
+        application = frappe.get_doc("Loan Application", application_id)
+        
+        # Check if application exists and is in correct state
+        if application.docstatus != 1:
+            frappe.throw(_(
+                f"Application {application_id} is not submitted. "
+                f"Current docstatus: {application.docstatus}"
+            ))
+        
+        if application.custom_bank_approval_status != "Pending Bank Review":
+            frappe.throw(_(
+                f"Application {application_id} is not in 'Pending Bank Review' state. "
+                f"Current status: {application.custom_bank_approval_status}"
+            ))
+        
+        # Get current user (bank user)
+        user = frappe.session.user
+        
+        # Update application based on action
+        if action == "approve":
+            application.custom_bank_approval_status = "Approved by Bank"
+            message = " Application approved successfully"
+            comment_text = f"Approved by Bank ({user}): {comments}"
+            
+        else:  # reject
+            application.custom_bank_approval_status = "Rejected by Bank"
+            message = " Application rejected"
+            comment_text = f"Rejected by Bank ({user}): {comments}"
+        
+        # Add comment to track who approved/rejected and when
+        application.add_comment("Comment", comment_text)
+        
+        # Save with ignore_permissions since bank API user might not have direct edit permission
+        application.save(ignore_permissions=True)
+        
+        return {
+            "success": True,
+            "message": message,
+            "application_id": application_id,
+            "new_status": application.custom_bank_approval_status,
+            "approved_by": user,
+            "timestamp": frappe.utils.now()
+        }
     
-    # Validate inputs
-    if not disbursement_id:
-        frappe.throw(_("disbursement_id is required"))
-    
-    if not bank_reference:
-        frappe.throw(_("bank_reference is required"))
-    
-    # Get the disbursement document
-    disbursement = frappe.get_doc("Loan Disbursement", disbursement_id)
-    
-    # Get related loan for security check
-    loan = frappe.get_doc("Loan", disbursement.against_loan)
-    
-    # Security check: Verify user has access to this loan's partner
-    user = frappe.session.user
-    allowed_partners = frappe.get_all(
-        "User Permission",
-        filters={
-            "user": user,
-            "allow": "Loan Partner"
-        },
-        fields=["for_value"]
-    )
-    
-    # Admin can access all, others need permission
-    if allowed_partners:
-        partner_names = [p.for_value for p in allowed_partners]
-        if loan.loan_partner not in partner_names:
-            frappe.throw(_("You don't have permission to access this disbursement"))
-    
-    # Update disbursement status
-    disbursement.custom_bank_confirmation_status = "Confirmed by Bank"
-    disbursement.add_comment("Comment", 
-        f"Disbursement confirmed by {user}\nBank Reference: {bank_reference}\n{comments}")
-    
-    # Optionally submit the disbursement
-    # disbursement.submit()
-    
-    disbursement.save(ignore_permissions=True)
-    
-    return {
-        "success": True,
-        "message": "Disbursement confirmed successfully",
-        "disbursement_id": disbursement_id,
-        "bank_reference": bank_reference,
-        "disbursed_amount": disbursed_amount,
-        "new_status": disbursement.custom_bank_confirmation_status,
-        "confirmed_by": user,
-        "timestamp": frappe.utils.now()
-    }
+    except frappe.ValidationError as e:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Approve Application")
+        return {
+            "success": False,
+            "error": str(e),
+            "error_type": "ValidationError"
+        }
+    except frappe.DoesNotExistError as e:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Approve Application")
+        return {
+            "success": False,
+            "error": f"Application not found: {application_id}",
+            "error_type": "DoesNotExistError"
+        }
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Approve Application")
+        return {
+            "success": False,
+            "error": str(e),
+            "error_type": "UnexpectedError"
+        }
 
 
 
@@ -237,64 +160,116 @@ def get_pending_disbursements():
     Returns list of disbursements that need bank confirmation.
     """
     
-    # Get current user
     user = frappe.session.user
     
-    # Get user's allowed Loan Partners based on User Permission
-    allowed_partners = frappe.get_all(
-        "User Permission",
-        filters={
-            "user": user,
-            "allow": "Loan Partner"
-        },
-        fields=["for_value"]
-    )
-    
-    # Build filters
-    disbursement_filters = {
-        "custom_bank_confirmation_status": "Pending Confirmation",
-        "docstatus": 0  # Draft disbursements only
-    }
-    
-    # If user has specific permissions, filter by loan partner
-    if allowed_partners:
-        partner_names = [p.for_value for p in allowed_partners]
+    try:
+        disbursement_filters = {
+            "custom_bank_confirmation_status": "Pending Confirmation",
+            "docstatus": 0
+        }
         
-        # Get loans for these partners
-        loans = frappe.get_all(
-            "Loan",
-            filters={"loan_partner": ["in", partner_names]},
-            fields=["name"]
+        disbursements = frappe.get_all(
+            "Loan Disbursement",
+            filters=disbursement_filters,
+            fields=[
+                "name",
+                "against_loan",
+                "applicant_type",
+                "applicant",
+                "disbursement_date",
+                "disbursed_amount",
+                "custom_bank_confirmation_status",
+                "docstatus"
+            ],
+            order_by="creation desc"
         )
-        loan_names = [loan.name for loan in loans]
         
-        disbursement_filters["against_loan"] = ["in", loan_names]
+        # Enrich with loan info
+        for d in disbursements:
+            loan = frappe.get_doc("Loan", d.against_loan)
+            d["applicant_name"] = loan.applicant_name
+        
+        return {
+            "success": True,
+            "user": user,
+            "total_disbursements": len(disbursements),
+            "disbursements": disbursements
+        }
     
-    # Get disbursements
-    disbursements = frappe.get_all(
-        "Loan Disbursement",
-        filters=disbursement_filters,
-        fields=[
-            "name",
-            "against_loan",
-            "applicant_type",
-            "applicant",
-            "disbursement_date",
-            "disbursed_amount",
-            "custom_bank_confirmation_status",
-            "docstatus"
-        ],
-        order_by="creation desc"
-    )
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Get Pending Disbursements")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+
+@frappe.whitelist()
+def confirm_disbursement():
+    """
+    API endpoint for banks to confirm loan disbursement.
+    Called after bank has transferred money to customer.
     
-    # Enrich with loan partner info
-    for d in disbursements:
-        loan_partner = frappe.db.get_value("Loan", d.against_loan, "loan_partner")
-        d["loan_partner"] = loan_partner
+    Parameters:
+    - disbursement_id: ID of the Loan Disbursement
+    - bank_reference: Bank's transaction reference number
+    - disbursed_amount: Amount actually disbursed
+    - comments: Optional comments from the bank
+    """
     
-    return {
-        "success": True,
-        "user": user,
-        "total_disbursements": len(disbursements),
-        "disbursements": disbursements
-    }
+    try:
+        # Get request data
+        data = frappe.local.form_dict
+        disbursement_id = data.get("disbursement_id")
+        bank_reference = data.get("bank_reference")
+        disbursed_amount = data.get("disbursed_amount")
+        comments = data.get("comments", "")
+        
+        # Validate inputs
+        if not disbursement_id:
+            frappe.throw(_("disbursement_id is required"))
+        
+        if not bank_reference:
+            frappe.throw(_("bank_reference is required"))
+        
+        # Get the disbursement document
+        disbursement = frappe.get_doc("Loan Disbursement", disbursement_id)
+        
+        user = frappe.session.user
+        
+        # Update disbursement status
+        disbursement.custom_bank_confirmation_status = "Confirmed by Bank"
+        disbursement.custom_bank_reference = bank_reference
+        disbursement.custom_bank_confirmation_timestamp = frappe.utils.now()
+        
+        disbursement.add_comment("Comment", 
+            f"Confirmed by {user}\nBank Reference: {bank_reference}\nAmount: {disbursed_amount}\n{comments}")
+        
+        disbursement.save(ignore_permissions=True)
+        
+        return {
+            "success": True,
+            "message": "Disbursement confirmed successfully",
+            "disbursement_id": disbursement_id,
+            "bank_reference": bank_reference,
+            "disbursed_amount": disbursed_amount,
+            "new_status": disbursement.custom_bank_confirmation_status,
+            "confirmed_by": user,
+            "timestamp": frappe.utils.now()
+        }
+    
+    except frappe.DoesNotExistError:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Confirm Disbursement")
+        return {
+            "success": False,
+            "error": f"Disbursement not found: {disbursement_id}",
+            "error_type": "DoesNotExistError"
+        }
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Bank API - Confirm Disbursement")
+        return {
+            "success": False,
+            "error": str(e),
+            "error_type": "UnexpectedError"
+        }
