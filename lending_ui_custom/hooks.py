@@ -34,9 +34,8 @@ app_include_css = [
 ]
 app_include_js = ["/assets/lending_ui_custom/js/custom_dashboard.js",
                 "/assets/lending_ui_custom/js/custom_login.js",
-                "/assets/lending_ui_custom/js/reorder_dashboard.js",
-                "assets/js/loan_application.js"
-]
+                "/assets/lending_ui_custom/js/reorder_dashboard.js",]
+                
 
 # include js, css files in header of web template
 web_include_css = "/assets/lending_ui_custom/css/custom_login.css"
@@ -55,9 +54,9 @@ web_include_js = "/assets/lending_ui_custom/js/custom_login.js"
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
-doctype_js = {
-    "Loan Application": "public/js/loan_application.js"
-}
+# doctype_js = {
+#     "Loan Application": "public/js/loan_application.js"
+# }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -164,10 +163,10 @@ doc_events = {
     "Loan Application": {
         "on_submit": "lending_ui_custom.overrides.loan_application.on_loan_application_submit",
     },
-    "Loan": {
-        "validate": "lending_ui_custom.overrides.loan.prevent_loan_creation_without_approval",
-        "before_submit": "lending_ui_custom.overrides.loan.validate_disbursement_before_submit",  # Keep your existing function
-    }
+    # "Loan": {
+    #     "validate": "lending_ui_custom.overrides.loan.prevent_loan_creation_without_approval",
+    #     "before_submit": "lending_ui_custom.overrides.loan.validate_disbursement_before_submit",  # Keep your existing function
+    # }
 }
 
 
