@@ -21,7 +21,7 @@ img[src*="frappe-framework-logo"],
     width: 200px;
     height: 80px;
     margin: 20px auto;
-    background-image: url('/assets/lending_ui_custom/images/custom_logo.svg');
+    background-image: url('/assets/lending_ui_custom/css/images/custom_logo.svg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

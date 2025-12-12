@@ -1,0 +1,27 @@
+/* Nepali Date (BS) Display Styling */
+
+.bs-date-display {
+    padding: 4px 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #003893;
+    display: inline-block;
+}
+
+.bs-date-display .bs-date-value {
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 600;
+    color: #003893;
+}
+
+.bs-date-display .bs-date-icon {
+    opacity: 0.7;
+}
+
+/* Make BS date display responsive */
+@media (max-width: 768px) {
+    .bs-date-display {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}

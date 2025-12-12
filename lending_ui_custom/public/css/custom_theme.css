@@ -253,14 +253,14 @@ body .badge-danger {
 
 /* Logo replacement - !important required for content property */
 body .navbar-brand .app-logo {
-  content: url('/assets/lending_ui_custom/images/custom-logo.png') !important;
+  content: url('/assets/lending_ui_custom/css/images/custom_logo.svg') !important;
   max-height: 24px;
   width: auto;
 }
 
 /* Alternative logo method */
 body .navbar-home {
-  background-image: url('/assets/lending_ui_custom/images/custom_logo.svg') !important;
+  background-image: url('/assets/lending_ui_custom/css/images/custom_logo.svg') !important;
   background-size: contain;
   background-repeat: no-repeat;
   width: 120px;

@@ -29,12 +29,19 @@ app_include_css = [
     "/assets/lending_ui_custom/css/custom_fonts.css",
     "/assets/lending_ui_custom/css/custom_theme.css",
     "/assets/lending_ui_custom/css/custom_card.css",
-    "/assets/lending_ui_custom/css/custom_login.css"
+    "/assets/lending_ui_custom/css/custom_login.css",
+    "/assets/lending_ui_custom/css/nepali_date.css"  # Add this
+
+
     #"/assets/lending_ui_custom/css/custom_dashboard.css"
 ]
 app_include_js = ["/assets/lending_ui_custom/js/custom_dashboard.js",
                 "/assets/lending_ui_custom/js/custom_login.js",
-                "/assets/lending_ui_custom/js/reorder_dashboard.js",]
+                "/assets/lending_ui_custom/js/reorder_dashboard.js",
+                "/assets/lending_ui_custom/js/nepali_date.js"  # Add this
+
+                
+                ]
                 
 
 # include js, css files in header of web template
